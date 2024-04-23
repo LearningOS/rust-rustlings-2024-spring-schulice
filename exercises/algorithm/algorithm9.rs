@@ -2,7 +2,6 @@
 	heap
 	This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -38,6 +37,17 @@ where
 
     pub fn add(&mut self, value: T) {
         //TODO
+        self.items.push(value);
+        self.count += 1;
+        let mut idx = self.items.len() - 1;
+        let mut parent_idx = self.parent_idx(idx);
+
+        while idx != 1 
+            && !(self.comparator)(&self.items[self.parent_idx(idx)], &self.items[idx]) {
+            self.items.swap(parent_idx, idx);
+            idx = parent_idx;
+            parent_idx = self.parent_idx(idx);
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -58,7 +68,16 @@ where
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
         //TODO
-		0
+        let l = self.left_child_idx(idx);
+        let r = self.right_child_idx(idx);
+        if r >=  self.items.len() {
+            return l;
+        }
+        if (self.comparator)(&self.items[l], &self.items[r]) {
+            l
+        } else {
+            r
+        }
     }
 }
 
@@ -85,7 +104,22 @@ where
 
     fn next(&mut self) -> Option<T> {
         //TODO
-		None
+		if self.count == 0 {
+            return None;
+        }
+        let mut idx = 1;
+        let mut child_idx = self.smallest_child_idx(idx);
+        let tail_idx = self.items.len() - 1;
+        self.items.swap(1, tail_idx);
+
+        while child_idx < tail_idx
+            && !(self.comparator)(&self.items[idx], &self.items[child_idx]) {
+            self.items.swap(child_idx, idx);
+            idx = child_idx;
+            child_idx = self.smallest_child_idx(idx);
+        }
+        self.count -= 1;
+        self.items.pop()
     }
 }
 

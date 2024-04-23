@@ -2,7 +2,6 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
@@ -69,14 +68,40 @@ impl<T> LinkedList<T> {
             },
         }
     }
+}
+
+impl<T> LinkedList<T> where T: PartialOrd {
 	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
 	{
 		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+        let mut res = Self::new();
+        let mut add_node = |p: &mut Option<NonNull<Node<T>>>| {
+            let ptr_nxt = unsafe{ (*(p.unwrap()).as_ptr()).next };
+            unsafe{ (*(p.unwrap()).as_ptr()).next = None};
+            match res.end {
+                None => res.start = *p,
+                Some(ptr_end) => unsafe {(*ptr_end.as_ptr()).next = *p}
+            }
+            res.end = *p;
+            *p = ptr_nxt;
+        };
+        let mut node_a = list_a.start;
+        let mut node_b = list_b.start;
+        while node_a.is_some() && node_b.is_some() {
+            if unsafe {(*node_a.unwrap().as_ptr()).val < (*node_b.unwrap().as_ptr()).val }{
+                add_node(&mut node_a);
+            } else {
+                add_node(&mut node_b);
+            }
         }
+        assert!(node_a.is_none() || node_b.is_none());
+        while node_a.is_some() {
+            add_node(&mut node_a);
+        }
+        while node_b.is_some() {
+            add_node(&mut node_b);
+        }
+        res
 	}
 }
 
